@@ -216,3 +216,106 @@ ORDER BY created_at DESC
 LIMIT 10;
 ```
 
+# Stage 3
+
+## Existing Query
+
+```sql
+SELECT *
+FROM notifications
+WHERE studentID = 1042
+AND isRead = false
+ORDER BY createdAt ASC;
+```
+
+## Is The Query Accurate?
+
+Yes, the query is logically accurate because it correctly fetches unread notifications for a specific student and sorts them by creation time.
+
+However, the query becomes slow when the notification table grows to millions of records.
+
+## Why Is The Query Slow?
+
+The database contains around:
+
+- 50,000 students
+- 5,000,000 notifications
+
+Without proper indexing, the database performs a full table scan to find matching rows.
+
+The sorting operation using `ORDER BY createdAt` also increases execution time because the database must sort a large number of records before returning results.
+
+## Main Performance Problems
+
+1. Full table scan
+2. Expensive sorting operation
+3. Large dataset size
+4. Increased disk reads
+5. Higher query execution time
+
+## Query Optimization
+
+### Recommended Composite Index
+
+```sql
+CREATE INDEX idx_notifications_student_read_created
+ON notifications(student_id, is_read, created_at);
+```
+
+## Why This Index Improves Performance
+
+The query filters notifications using:
+
+- student_id
+- is_read
+
+and sorts results using:
+
+- created_at
+
+The composite index helps the database quickly locate matching rows without scanning the entire table.
+
+It also reduces sorting cost because the data is already partially ordered inside the index.
+
+## Likely Computation Cost
+
+Without indexes:
+
+- Time Complexity: O(n)
+
+The database scans the entire notifications table.
+
+With composite indexing:
+
+- Time Complexity: Approximately O(log n)
+
+The database directly accesses matching indexed rows, reducing execution time significantly.
+
+## Should Indexes Be Added On Every Column?
+
+No, adding indexes on every column is not an effective solution.
+
+Excessive indexes can create several problems:
+
+1. Increased storage usage
+2. Slower INSERT and UPDATE operations
+3. Higher index maintenance cost
+4. Reduced write performance
+
+Indexes should only be added on frequently searched, filtered, or sorted columns.
+
+## Query To Fetch Students Who Received Placement Notifications In The Last 7 Days
+
+```sql
+SELECT DISTINCT student_id
+FROM notifications
+WHERE notification_type = 'Placement'
+AND created_at >= NOW() - INTERVAL '7 days';
+```
+
+## Summary
+
+The main reason for slow query performance is the increasing volume of notification data combined with missing indexes.
+
+Using proper composite indexing, pagination, and optimized filtering can significantly improve query execution time and overall database performance.
+
