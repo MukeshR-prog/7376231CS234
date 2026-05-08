@@ -450,3 +450,89 @@ The best approach is to combine multiple strategies:
 
 This combination improves scalability, reduces database load, and provides a better user experience.
 
+# Stage 5
+
+## Problems In Current Implementation
+
+1. Notifications are processed sequentially
+2. One failure can interrupt the entire process
+3. Sending emails for 50,000 students is very slow
+4. No retry mechanism exists
+5. High server load during bulk notifications
+
+## Problem When Email Sending Fails
+
+If the email service fails midway, some students may receive notifications while others may not.
+
+This creates inconsistent system behavior and unreliable notification delivery.
+
+## Improved Solution
+
+The notification system should use asynchronous background job processing using queues and workers.
+
+## Recommended Flow
+
+1. HR clicks "Notify All"
+2. Notification jobs are added to a queue
+3. Workers process jobs asynchronously
+4. Database stores notification
+5. Email service sends emails
+6. Socket.IO pushes real-time notifications
+7. Failed jobs are retried automatically
+
+## Advantages Of Queue-Based Processing
+
+- Faster bulk processing
+- Better scalability
+- Retry support
+- Reduced API response time
+- Improved reliability
+
+## Should Database Save And Email Sending Happen Together?
+
+No.
+
+Saving notifications to the database and sending emails should be handled independently.
+
+The database operation is critical because notifications must always be stored reliably.
+
+Email delivery can happen asynchronously through background workers and retries.
+
+## Revised Pseudocode
+
+```javascript
+function notifyAllStudents(studentIds, message) {
+
+    for (const studentId of studentIds) {
+
+        queue.add({
+            studentId,
+            message
+        });
+
+    }
+}
+```
+
+```javascript
+worker.process(async (job) => {
+
+    saveNotificationToDB(job.studentId, job.message);
+
+    sendEmail(job.studentId, job.message);
+
+    pushRealtimeNotification(job.studentId, job.message);
+
+});
+```
+
+## Retry Mechanism
+
+Failed jobs should automatically retry after a delay.
+
+This improves reliability during temporary email service failures.
+
+## Summary
+
+Using queues, workers, retries, and asynchronous processing improves scalability, reliability, and notification delivery performance for large-scale systems.
+
