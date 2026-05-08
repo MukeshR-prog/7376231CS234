@@ -556,3 +556,7 @@ The system sorts notifications using notification priority and latest timestamp,
 ## Efficient Top 10 Maintenance
 
 For large-scale systems, a Min Heap or Priority Queue can be used to efficiently maintain the top 10 notifications when new notifications arrive continuously.
+
+## Note
+
+The frontend was initially integrated with the live evaluation API through the backend service. After the evaluation session expired, mock notification data based on the previously fetched API response was used to demonstrate frontend functionality.
