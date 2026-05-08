@@ -117,3 +117,102 @@ The application uses Socket.IO for real-time communication between frontend and 
 - Better user experience
 - Reduced repeated API calls
 - Real-time synchronization
+
+# Stage 2
+
+## Database Choice
+
+PostgreSQL is selected as the primary database for the notification platform.
+
+### Reasons
+
+1. Structured relational data
+2. Better query support
+3. Strong indexing support
+4. ACID compliance
+5. Reliable handling of large notification records
+6. Better filtering and pagination support
+
+## Database Schema
+
+### Students Table
+
+```sql
+CREATE TABLE students (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Notifications Table
+
+```sql
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY,
+    student_id INT REFERENCES students(id),
+    notification_type VARCHAR(20),
+    message TEXT,
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Problems As Data Volume Increases
+
+As the number of students and notifications increases, the following problems may occur:
+
+1. Slow query performance
+2. Increased database load
+3. Delayed notification fetching
+4. Higher memory usage
+5. Slower sorting and filtering operations
+
+## Solutions To Improve Performance
+
+1. Add indexes on frequently searched columns
+2. Use pagination for notification fetching
+3. Use Redis caching for frequently accessed data
+4. Use database partitioning for large notification tables
+5. Use WebSockets instead of repeated polling
+
+## SQL Queries
+
+### Fetch Notifications
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1
+ORDER BY created_at DESC
+LIMIT 10 OFFSET 0;
+```
+
+### Filter Notifications By Type
+
+```sql
+SELECT *
+FROM notifications
+WHERE notification_type = 'Placement'
+AND student_id = 1;
+```
+
+### Mark Notification As Read
+
+```sql
+UPDATE notifications
+SET is_read = true
+WHERE id = 'notification-id';
+```
+
+### Fetch Priority Notifications
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
