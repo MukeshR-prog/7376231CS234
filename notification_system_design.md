@@ -319,3 +319,134 @@ The main reason for slow query performance is the increasing volume of notificat
 
 Using proper composite indexing, pagination, and optimized filtering can significantly improve query execution time and overall database performance.
 
+# Stage 4
+
+## Problem Overview
+
+Currently, notifications are fetched from the database every time a student loads the page.
+
+As the number of students and notifications increases, the database receives a very large number of repeated requests, causing high load and slower response times.
+
+## Main Problems
+
+1. Increased database load
+2. Repeated execution of the same queries
+3. Slower API response time
+4. Poor user experience
+5. Increased server resource usage
+
+## Solutions To Improve Performance
+
+### 1. Pagination
+
+Notifications should be fetched in smaller batches instead of loading all records at once.
+
+Example:
+
+- 10 notifications per request
+- Infinite scrolling or page-based loading
+
+### Advantages
+
+- Reduced database load
+- Faster API response
+- Better frontend performance
+- Lower memory usage
+
+### 2. Redis Caching
+
+Frequently accessed notification data can be stored temporarily in Redis cache.
+
+Instead of querying the database repeatedly, the backend first checks Redis cache.
+
+### Advantages
+
+- Faster response time
+- Reduced database traffic
+- Better scalability
+
+### 3. Real-Time Updates Using Socket.IO
+
+Instead of repeatedly fetching notifications from the server, the frontend can receive new notifications instantly using Socket.IO.
+
+This reduces unnecessary polling requests to the backend.
+
+### Advantages
+
+- Real-time notification delivery
+- Reduced repeated API calls
+- Better user experience
+
+### 4. Database Indexing
+
+Indexes should be added on frequently searched columns such as:
+
+- student_id
+- notification_type
+- created_at
+- is_read
+
+This helps the database fetch records more efficiently.
+
+### 5. Archiving Old Notifications
+
+Very old notifications can be moved to archive tables or cold storage.
+
+This keeps the active notifications table smaller and improves query performance.
+
+## Tradeoffs Of Each Solution
+
+### Pagination Tradeoffs
+
+Advantages:
+- Lower server load
+- Faster response time
+
+Disadvantages:
+- Multiple API calls required for more data
+- Slightly more frontend logic needed
+
+### Redis Caching Tradeoffs
+
+Advantages:
+- Very fast data access
+- Reduced database usage
+
+Disadvantages:
+- Additional infrastructure required
+- Cache invalidation complexity
+- Increased memory usage
+
+### Socket.IO Tradeoffs
+
+Advantages:
+- Instant updates
+- Reduced polling
+
+Disadvantages:
+- Persistent socket connections required
+- More backend complexity
+- Increased server memory usage
+
+### Database Indexing Tradeoffs
+
+Advantages:
+- Faster query execution
+- Improved filtering and sorting
+
+Disadvantages:
+- Increased storage usage
+- Slower INSERT and UPDATE operations
+
+## Recommended Final Approach
+
+The best approach is to combine multiple strategies:
+
+1. Use pagination for fetching notifications
+2. Use Redis caching for frequently accessed data
+3. Use Socket.IO for real-time updates
+4. Use proper database indexing
+5. Archive old notification records
+
+This combination improves scalability, reduces database load, and provides a better user experience.
+
