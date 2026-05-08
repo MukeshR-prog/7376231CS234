@@ -536,3 +536,23 @@ This improves reliability during temporary email service failures.
 
 Using queues, workers, retries, and asynchronous processing improves scalability, reliability, and notification delivery performance for large-scale systems.
 
+# Stage 6
+
+## Priority Notification Logic
+
+Notifications are prioritized based on:
+
+- notification type
+- recency
+
+Priority Order:
+
+- Placement
+- Result
+- Event
+
+The system sorts notifications using notification priority and latest timestamp, then returns the top 10 notifications.
+
+## Efficient Top 10 Maintenance
+
+For large-scale systems, a Min Heap or Priority Queue can be used to efficiently maintain the top 10 notifications when new notifications arrive continuously.

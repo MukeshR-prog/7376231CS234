@@ -1,3 +1,8 @@
 logging-middleware/node_modules/
 logging-middleware/.env
 logging-middleware/package-lock.json
+
+
+notification_app_be/node_modules
+notification_app_be/.env
+notification_app_be/package-lock.json
